@@ -101,7 +101,7 @@ def main(args, net, datadir_path, merged_urls, worker_endpoint):
         print '''Testing dashd RPC connection to '%s' with username '%s'...''' % (url, args.dashd_rpc_username)
         dashd = jsonrpc.HTTPProxy(url, dict(Authorization='Basic ' + base64.b64encode(args.dashd_rpc_username + ':' + args.dashd_rpc_password)), timeout=30)
         yield helper.check(imkod, net)
-        temp_work = yield helper.getworkdashd, net)
+        temp_work = yield helper.getwork(imkod, net)
         
         dashd_getnetworkinfo_var = variable.Variable(None)
         @defer.inlineCallbacks
