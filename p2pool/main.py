@@ -100,13 +100,13 @@ def main(args, net, datadir_path, merged_urls, worker_endpoint):
         url = '%s://%s:%i/' % ('https' if args.dashd_rpc_ssl else 'http', args.dashd_address, args.dashd_rpc_port)
         print '''Testing dashd RPC connection to '%s' with username '%s'...''' % (url, args.dashd_rpc_username)
         dashd = jsonrpc.HTTPProxy(url, dict(Authorization='Basic ' + base64.b64encode(args.dashd_rpc_username + ':' + args.dashd_rpc_password)), timeout=30)
-        yield helper.check(dashd, net)
-        temp_work = yield helper.getwork(dashd, net)
+        yield helper.check(imkod, net)
+        temp_work = yield helper.getworkimkod, net)
         
         dashd_getnetworkinfo_var = variable.Variable(None)
         @defer.inlineCallbacks
         def poll_warnings():
-            dashd_getnetworkinfo_var.set((yield deferral.retry('Error while calling getnetworkinfo:')(dashd.rpc_getnetworkinfo)()))
+            dashd_getnetworkinfo_var.set((yield deferral.retry('Error while calling getnetworkinfo:')(imkod.rpc_getnetworkinfo)()))
         yield poll_warnings()
         deferral.RobustLoopingCall(poll_warnings).start(20*60)
         
@@ -131,14 +131,14 @@ def main(args, net, datadir_path, merged_urls, worker_endpoint):
                 address = None
             
             if address is not None:
-                res = yield deferral.retry('Error validating cached address:', 5)(lambda: dashd.rpc_validateaddress(address))()
+                res = yield deferral.retry('Error validating cached address:', 5)(lambda: imkod.rpc_validateaddress(address))()
                 if not res['isvalid'] or not res['ismine']:
                     print '    Cached address is either invalid or not controlled by local dashd!'
                     address = None
             
             if address is None:
                 print '    Getting payout address from dashd...'
-                address = yield deferral.retry('Error getting payout address from dashd:', 5)(lambda: dashd.rpc_getaccountaddress('p2pool'))()
+                address = yield deferral.retry('Error getting payout address from dashd:', 5)(lambda: imkod.rpc_getaccountaddress('p2pool'))()
             
             with open(address_path, 'wb') as f:
                 f.write(address)
@@ -205,7 +205,7 @@ def main(args, net, datadir_path, merged_urls, worker_endpoint):
 
             pubkeys = keypool()
             for i in xrange(args.numaddresses):
-                address = yield deferral.retry('Error getting a dynamic address from dashd:', 5)(lambda: dashd.rpc_getnewaddress('p2pool'))()
+                address = yield deferral.retry('Error getting a dynamic address from dashd:', 5)(lambda: imkod.rpc_getnewaddress('p2pool'))()
                 new_pubkey = dash_data.address_to_pubkey_hash(address, net.PARENT)
                 pubkeys.addkey(new_pubkey)
 
